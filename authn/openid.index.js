@@ -1,3 +1,4 @@
+require("dotenv").config();
 const qs = require('query-string');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
@@ -13,6 +14,11 @@ var config;
 exports.handler = (event, context, callback) => {
   if (typeof jwks == 'undefined' || typeof discoveryDocument == 'undefined' || typeof config == 'undefined') {
     config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+    config.AUTH_REQUEST.client_id=process.env.CLIENT_ID;
+    config.TOKEN_REQUEST.client_id=process.env.CLIENT_ID;
+    config.TOKEN_REQUEST.client_secret=process.env.CLIENT_SECRET;
+    config.PRIVATE_KEY=process.env.PRIVATE_KEY;
+    config.PUBLIC_KEY=process.env.PUBLIC_KEY;
 
     // Get Discovery Document data
     console.log("Get discovery document data");
