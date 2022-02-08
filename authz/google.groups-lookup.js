@@ -1,7 +1,7 @@
 const fs = require('fs');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
-const qs = require('querystring');
+const qs = require('query-string');
 
 function isAuthorized(decoded, request, callback, unauthorized, internalServerError, config) {
   var googleAuthz = JSON.parse(fs.readFileSync('./google-authz.json'));

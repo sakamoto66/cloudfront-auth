@@ -1,4 +1,4 @@
-const qs = require('querystring');
+const qs = require('query-string');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const cookie = require('cookie');
