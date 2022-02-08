@@ -4,7 +4,7 @@ npm i
 
 ENV=${1}
 if [ -z "$ENV" ]; then
-    ENV=cloundfront-auth
+    ENV=cloudfront-auth
 fi
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 FILENAME="${SCRIPT_DIR}/.env"
