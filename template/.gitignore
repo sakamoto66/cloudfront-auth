@@ -1,0 +1,8 @@
+node_modules
+*.DS_Store
+*.zip
+id_rsa
+id_rsa.pub
+.idea
+.env
+secret/

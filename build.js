@@ -7,7 +7,12 @@ const url = require('url');
 const R = require('ramda');
 
 var config = { AUTH_REQUEST: {}, TOKEN_REQUEST: {} };
+var secret = {};
 var oldConfig;
+
+if( !fs.existsSync("distributions") ){
+  fs.mkdirSync("distributions");
+}
 
 prompt.message = colors.blue(">");
 prompt.start();
@@ -122,24 +127,24 @@ function microsoftConfiguration() {
       }
     }
   }, function(err, result) {
-    config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
-    config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
+    secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, '');
+    secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, '');
     config.TENANT = result.TENANT;
     config.DISCOVERY_DOCUMENT = 'https://login.microsoftonline.com/' + result.TENANT + '/.well-known/openid-configuration';
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
 
     config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
 
-    config.AUTH_REQUEST.client_id = result.CLIENT_ID;
+    //config.AUTH_REQUEST.client_id = result.CLIENT_ID;
     config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.AUTH_REQUEST.response_type = 'code';
     config.AUTH_REQUEST.response_mode = 'query';
     config.AUTH_REQUEST.scope = 'openid';
 
-    config.TOKEN_REQUEST.client_id = result.CLIENT_ID;
+    secret.CLIENT_ID = result.CLIENT_ID;
+    secret.CLIENT_SECRET = result.CLIENT_SECRET;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
     config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
-    config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
 
     config.AUTHZ = result.AUTHZ;
 
@@ -152,7 +157,7 @@ function microsoftConfiguration() {
     switch (result.AUTHZ) {
       case '1':
         shell.cp('./authz/microsoft.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-        writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
+        writeConfig(config, secret);
         break;
       case '2':
         shell.cp('./authz/microsoft.json-username-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
@@ -167,7 +172,7 @@ function microsoftConfiguration() {
           }
         }, function (err, result) {
           config.JSON_USERNAME_LOOKUP = result.JSON_USERNAME_LOOKUP;
-          writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
+          writeConfig(config, secret);
         });
         break;
       default:
@@ -213,22 +218,22 @@ function googleConfiguration() {
       }
     }
   }, function(err, result) {
-    config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
-    config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
+    secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, '');
+    secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, '');
     config.DISCOVERY_DOCUMENT = 'https://accounts.google.com/.well-known/openid-configuration';
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
 
     config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
     config.HOSTED_DOMAIN = result.HD;
 
-    config.AUTH_REQUEST.client_id = result.CLIENT_ID;
+    //config.AUTH_REQUEST.client_id = result.CLIENT_ID;
     config.AUTH_REQUEST.response_type = 'code';
     config.AUTH_REQUEST.scope = 'openid email';
     config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.AUTH_REQUEST.hd = result.HD;
 
-    config.TOKEN_REQUEST.client_id = result.CLIENT_ID;
-    config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
+    secret.CLIENT_ID = result.CLIENT_ID;
+    secret.CLIENT_SECRET = result.CLIENT_SECRET;
     config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
 
@@ -243,7 +248,7 @@ function googleConfiguration() {
       case '1':
         shell.cp('./authz/google.hosted-domain.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
         shell.cp('./nonce.js', './distributions/' + config.DISTRIBUTION + '/nonce.js');
-        writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
+        writeConfig(config, secret);
         break;
       case '2':
         shell.cp('./authz/google.json-email-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
@@ -258,7 +263,7 @@ function googleConfiguration() {
           }
         }, function (err, result) {
           config.JSON_EMAIL_LOOKUP = result.JSON_EMAIL_LOOKUP;
-          writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
+          writeConfig(config, secret);
         });
         break;
       case '3':
@@ -303,7 +308,7 @@ function googleGroupsConfiguration() {
     }
   }, function (err, result) {
     config.SERVICE_ACCOUNT_EMAIL = result.SERVICE_ACCOUNT_EMAIL;
-    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'google-authz.json', 'nonce.js']);
+    writeConfig(config, secret);
   });
 }
 
@@ -352,22 +357,25 @@ function oktaConfiguration() {
   prompt.get({
     properties: properties
   }, function(err, result) {
-    config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
-    config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
+    secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, '');
+    secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, '');
     config.DISCOVERY_DOCUMENT = result.BASE_URL + '/.well-known/openid-configuration';
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
 
     config.BASE_URL = result.BASE_URL;
     config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
 
-    config.AUTH_REQUEST.client_id = result.CLIENT_ID;
+    //config.AUTH_REQUEST.client_id = result.CLIENT_ID;
     config.AUTH_REQUEST.response_type = 'code';
     config.AUTH_REQUEST.scope = 'openid email';
     config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
 
-    config.TOKEN_REQUEST.client_id = result.CLIENT_ID;
+    secret.CLIENT_ID = result.CLIENT_ID;
     config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
+
+    secret.CLIENT_ID = result.CLIENT_ID;
+
     var files = ['config.json', 'index.js', 'auth.js', 'nonce.js'];
     if(result.CLIENT_SECRET) {
       config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
@@ -383,7 +391,7 @@ function oktaConfiguration() {
     shell.cp('./nonce.js', './distributions/' + config.DISTRIBUTION + '/nonce.js');
     fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
     shell.cp('./authz/okta.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-    writeConfig(config, zip, files);
+    writeConfig(config, secret);
   });
 }
 
@@ -424,25 +432,25 @@ function githubConfiguration() {
     axios.get('https://api.github.com/orgs/' + result.ORGANIZATION)
       .then(function (response) {
         if (response.status == 200) {
-          config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
-          config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
+          secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, '');
+          secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, '');
           config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
           config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
           config.ORGANIZATION = result.ORGANIZATION;
           config.AUTHORIZATION_ENDPOINT = 'https://github.com/login/oauth/authorize';
           config.TOKEN_ENDPOINT = 'https://github.com/login/oauth/access_token';
 
-          config.AUTH_REQUEST.client_id = result.CLIENT_ID;
+          //config.AUTH_REQUEST.client_id = result.CLIENT_ID;
           config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
           config.AUTH_REQUEST.scope = 'read:org user:email';
 
-          config.TOKEN_REQUEST.client_id = result.CLIENT_ID;
-          config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
+          secret.CLIENT_ID = result.CLIENT_ID;
+          secret.CLIENT_SECRET = result.CLIENT_SECRET;
           config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
 
           shell.cp('./authz/github.membership-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
           shell.cp('./authn/github.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
-          writeConfig(config, zip, ['config.json', 'index.js', 'auth.js']);
+          writeConfig(config, secret);
         } else {
           console.log("Organization could not be verified (code " + response.status + "). Stopping build...");
         }
@@ -488,21 +496,21 @@ function auth0Configuration() {
       }
     }
   }, function(err, result) {
-    config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
-    config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
+    secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, '');
+    secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, '');
     config.DISCOVERY_DOCUMENT = result.BASE_URL + '/.well-known/openid-configuration';
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
 
     config.BASE_URL = result.BASE_URL;
     config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
 
-    config.AUTH_REQUEST.client_id = result.CLIENT_ID;
+    //config.AUTH_REQUEST.client_id = result.CLIENT_ID;
     config.AUTH_REQUEST.response_type = 'code';
     config.AUTH_REQUEST.scope = 'openid email';
     config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
 
-    config.TOKEN_REQUEST.client_id = result.CLIENT_ID;
-    config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
+    secret.CLIENT_ID = result.CLIENT_ID;
+    secret.CLIENT_SECRET = result.CLIENT_SECRET;
     config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
 
@@ -514,7 +522,7 @@ function auth0Configuration() {
     fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
 
     shell.cp('./authz/auth0.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
+    writeConfig(config, secret);
   });
 }
 
@@ -553,21 +561,21 @@ function centrifyConfiguration() {
       }
     }
   }, function(err, result) {
-    config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
-    config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
+    secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, '');
+    secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, '');
     config.DISCOVERY_DOCUMENT = result.BASE_URL + '/.well-known/openid-configuration';
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
 
     config.BASE_URL = result.BASE_URL;
     config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
 
-    config.AUTH_REQUEST.client_id = result.CLIENT_ID;
+    //config.AUTH_REQUEST.client_id = result.CLIENT_ID;
     config.AUTH_REQUEST.response_type = 'code';
     config.AUTH_REQUEST.scope = 'openid email';
     config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
 
-    config.TOKEN_REQUEST.client_id = result.CLIENT_ID;
-    config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
+    secret.CLIENT_ID = result.CLIENT_ID;
+    secret.CLIENT_SECRET = result.CLIENT_SECRET;
     config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
 
@@ -579,23 +587,17 @@ function centrifyConfiguration() {
     fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
 
     shell.cp('./authz/centrify.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
+    writeConfig(config, secret);
   });
-}
-
-function zip(files) {
-  var filesString = '';
-  for (var i = 0; i < files.length; i++) {
-    filesString += ' distributions/' + config.DISTRIBUTION + '/' + files[i] + ' ';
-  }
-  shell.exec('zip -q distributions/' + config.DISTRIBUTION + '/' + config.DISTRIBUTION + '.zip ' + 'package-lock.json package.json -r node_modules');
-  shell.exec('zip -q -r -j distributions/' + config.DISTRIBUTION + '/' + config.DISTRIBUTION + '.zip ' + filesString);
-  console.log(colors.green("Done... created Lambda function distributions/" + config.DISTRIBUTION + "/" + config.DISTRIBUTION + ".zip"));
 }
 
 function writeConfig(result, callback, files) {
-  fs.writeFile('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4), (err) => {
-    if (err) throw err;
-    callback(files);
-  });
+  if( !fs.existsSync('distributions/' + config.DISTRIBUTION + '/secret') ){
+    fs.mkdirSync('distributions/' + config.DISTRIBUTION + '/secret');
+  }
+  fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
+  fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/secret/cloudfront-auth.json', JSON.stringify(result, null, 4));
+  shell.cp('./template/package.json', './distributions/' + config.DISTRIBUTION + '/package.json');
+  shell.cp('./template/build.sh', './distributions/' + config.DISTRIBUTION + '/build.sh');
+  shell.cp('./template/.gitignore', './distributions/' + config.DISTRIBUTION + '/.gitignore');
 }
