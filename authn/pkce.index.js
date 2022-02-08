@@ -17,8 +17,8 @@ exports.handler = (event, context, callback) => {
     config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
     config.AUTH_REQUEST.client_id=process.env.CLIENT_ID;
     config.TOKEN_REQUEST.client_id=process.env.CLIENT_ID;
-    config.PRIVATE_KEY=process.env.PRIVATE_KEY;
-    config.PUBLIC_KEY=process.env.PUBLIC_KEY;
+    config.PRIVATE_KEY=process.env.PRIVATE_KEY.replace(/\\n/g, "\n");
+    config.PUBLIC_KEY=process.env.PUBLIC_KEY.replace(/\\n/g, "\n");
 
     // Get Discovery Document data
     console.log("Get discovery document data");

@@ -14,8 +14,8 @@ exports.handler = (event, context, callback) => {
     config.AUTH_REQUEST.client_id=process.env.CLIENT_ID;
     config.TOKEN_REQUEST.client_id=process.env.CLIENT_ID;
     config.TOKEN_REQUEST.client_secret=process.env.CLIENT_SECRET;
-    config.PRIVATE_KEY=process.env.PRIVATE_KEY;
-    config.PUBLIC_KEY=process.env.PUBLIC_KEY;
+    config.PRIVATE_KEY=process.env.PRIVATE_KEY.replace(/\\n/g, "\n");
+    config.PUBLIC_KEY=process.env.PUBLIC_KEY.replace(/\\n/g, "\n");
   }
   mainProcess(event, context, callback);
 };

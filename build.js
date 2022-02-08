@@ -127,8 +127,8 @@ function microsoftConfiguration() {
       }
     }
   }, function(err, result) {
-    secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, '');
-    secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, '');
+    secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, "\\n");
+    secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, "\\n");
     config.TENANT = result.TENANT;
     config.DISCOVERY_DOCUMENT = 'https://login.microsoftonline.com/' + result.TENANT + '/.well-known/openid-configuration';
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
@@ -218,8 +218,8 @@ function googleConfiguration() {
       }
     }
   }, function(err, result) {
-    secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, '');
-    secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, '');
+    secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, "\\n");
+    secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, "\\n");
     config.DISCOVERY_DOCUMENT = 'https://accounts.google.com/.well-known/openid-configuration';
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
 
@@ -357,8 +357,8 @@ function oktaConfiguration() {
   prompt.get({
     properties: properties
   }, function(err, result) {
-    secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, '');
-    secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, '');
+    secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, "\\n");
+    secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, "\\n");
     config.DISCOVERY_DOCUMENT = result.BASE_URL + '/.well-known/openid-configuration';
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
 
@@ -432,8 +432,8 @@ function githubConfiguration() {
     axios.get('https://api.github.com/orgs/' + result.ORGANIZATION)
       .then(function (response) {
         if (response.status == 200) {
-          secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, '');
-          secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, '');
+          secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, "\\n");
+          secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, "\\n");
           config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
           config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
           config.ORGANIZATION = result.ORGANIZATION;
@@ -496,8 +496,8 @@ function auth0Configuration() {
       }
     }
   }, function(err, result) {
-    secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, '');
-    secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, '');
+    secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, "\\n");
+    secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, "\\n");
     config.DISCOVERY_DOCUMENT = result.BASE_URL + '/.well-known/openid-configuration';
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
 
@@ -561,8 +561,8 @@ function centrifyConfiguration() {
       }
     }
   }, function(err, result) {
-    secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, '');
-    secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, '');
+    secret.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8').replace(/\n/g, "\\n");
+    secret.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8').replace(/\n/g, "\\n");
     config.DISCOVERY_DOCUMENT = result.BASE_URL + '/.well-known/openid-configuration';
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
 
@@ -591,12 +591,12 @@ function centrifyConfiguration() {
   });
 }
 
-function writeConfig(result, callback, files) {
+function writeConfig(config, secret) {
   if( !fs.existsSync('distributions/' + config.DISTRIBUTION + '/secret') ){
     fs.mkdirSync('distributions/' + config.DISTRIBUTION + '/secret');
   }
-  fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
-  fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/secret/cloudfront-auth.json', JSON.stringify(result, null, 4));
+  fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(config, null, 4));
+  fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/secret/cloudfront-auth.json', JSON.stringify(secret, null, 4));
   shell.cp('./template/package.json', './distributions/' + config.DISTRIBUTION + '/package.json');
   shell.cp('./template/build.sh', './distributions/' + config.DISTRIBUTION + '/build.sh');
   shell.cp('./template/.gitignore', './distributions/' + config.DISTRIBUTION + '/.gitignore');
