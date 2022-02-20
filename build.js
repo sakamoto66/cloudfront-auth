@@ -115,7 +115,7 @@ function microsoftConfiguration() {
       REDIRECT_URI: {
         message: colors.red("Redirect URI"),
         required: true,
-        default: R.pathOr('', ['AUTH_REQUEST', 'redirect_uri'], oldConfig)
+        default: R.pathOr('/_callback', ['CALLBACK_PATH'], oldConfig)
       },
       SESSION_DURATION: {
         message: colors.red("Session Duration (hours)"),
@@ -136,7 +136,7 @@ function microsoftConfiguration() {
     config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
 
     //config.AUTH_REQUEST.client_id = result.CLIENT_ID;
-    config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
+    //config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.AUTH_REQUEST.response_type = 'code';
     config.AUTH_REQUEST.response_mode = 'query';
     config.AUTH_REQUEST.scope = 'openid';
@@ -144,7 +144,7 @@ function microsoftConfiguration() {
     secret.CLIENT_ID = result.CLIENT_ID;
     secret.CLIENT_SECRET = result.CLIENT_SECRET;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
-    config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
+    //config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
 
     config.AUTHZ = result.AUTHZ;
 
@@ -199,7 +199,7 @@ function googleConfiguration() {
       REDIRECT_URI: {
         message: colors.red("Redirect URI"),
         required: true,
-        default: R.pathOr('', ['AUTH_REQUEST', 'redirect_uri'], oldConfig)
+        default: R.pathOr('/_callback', ['CALLBACK_PATH'], oldConfig)
       },
       HD: {
         message: colors.red("Hosted Domain"),
@@ -229,12 +229,12 @@ function googleConfiguration() {
     //config.AUTH_REQUEST.client_id = result.CLIENT_ID;
     config.AUTH_REQUEST.response_type = 'code';
     config.AUTH_REQUEST.scope = 'openid email';
-    config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
+    //config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.AUTH_REQUEST.hd = result.HD;
 
     secret.CLIENT_ID = result.CLIENT_ID;
     secret.CLIENT_SECRET = result.CLIENT_SECRET;
-    config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
+    //config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
 
     config.AUTHZ = result.AUTHZ;
@@ -327,7 +327,7 @@ function oktaConfiguration() {
     REDIRECT_URI: {
       message: colors.red("Redirect URI"),
       required: true,
-      default: R.pathOr('', ['AUTH_REQUEST', 'redirect_uri'], oldConfig)
+      default: R.pathOr('/_callback', ['CALLBACK_PATH'], oldConfig)
     },
     SESSION_DURATION: {
       pattern: /^[0-9]*$/,
@@ -368,10 +368,10 @@ function oktaConfiguration() {
     //config.AUTH_REQUEST.client_id = result.CLIENT_ID;
     config.AUTH_REQUEST.response_type = 'code';
     config.AUTH_REQUEST.scope = 'openid email';
-    config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
+    //config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
 
     secret.CLIENT_ID = result.CLIENT_ID;
-    config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
+    //config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
 
     secret.CLIENT_ID = result.CLIENT_ID;
@@ -413,7 +413,7 @@ function githubConfiguration() {
       REDIRECT_URI: {
         message: colors.red("Redirect URI"),
         required: true,
-        default: R.pathOr('', ['AUTH_REQUEST', 'redirect_uri'], oldConfig)
+        default: R.pathOr('/_callback', ['CALLBACK_PATH'], oldConfig)
       },
       SESSION_DURATION: {
         pattern: /^[0-9]*$/,
@@ -441,12 +441,12 @@ function githubConfiguration() {
           config.TOKEN_ENDPOINT = 'https://github.com/login/oauth/access_token';
 
           //config.AUTH_REQUEST.client_id = result.CLIENT_ID;
-          config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
+          //config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
           config.AUTH_REQUEST.scope = 'read:org user:email';
 
           secret.CLIENT_ID = result.CLIENT_ID;
           secret.CLIENT_SECRET = result.CLIENT_SECRET;
-          config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
+          //config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
 
           shell.cp('./authz/github.membership-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
           shell.cp('./authn/github.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
@@ -485,7 +485,7 @@ function auth0Configuration() {
       REDIRECT_URI: {
         message: colors.red("Redirect URI"),
         required: true,
-        default: R.pathOr('', ['AUTH_REQUEST', 'redirect_uri'], oldConfig)
+        default: R.pathOr('/_callback', ['CALLBACK_PATH'], oldConfig)
       },
       SESSION_DURATION: {
         pattern: /^[0-9]*$/,
@@ -507,11 +507,11 @@ function auth0Configuration() {
     //config.AUTH_REQUEST.client_id = result.CLIENT_ID;
     config.AUTH_REQUEST.response_type = 'code';
     config.AUTH_REQUEST.scope = 'openid email';
-    config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
+    //config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
 
     secret.CLIENT_ID = result.CLIENT_ID;
     secret.CLIENT_SECRET = result.CLIENT_SECRET;
-    config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
+    //config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
 
     config.AUTHZ = "AUTH0";
@@ -550,7 +550,7 @@ function centrifyConfiguration() {
       REDIRECT_URI: {
         message: colors.red("Redirect URI"),
         required: true,
-        default: R.pathOr('', ['AUTH_REQUEST', 'redirect_uri'], oldConfig)
+        default: R.pathOr('/_callback', ['CALLBACK_PATH'], oldConfig)
       },
       SESSION_DURATION: {
         pattern: /^[0-9]*$/,
@@ -572,11 +572,11 @@ function centrifyConfiguration() {
     //config.AUTH_REQUEST.client_id = result.CLIENT_ID;
     config.AUTH_REQUEST.response_type = 'code';
     config.AUTH_REQUEST.scope = 'openid email';
-    config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
+    //config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
 
     secret.CLIENT_ID = result.CLIENT_ID;
     secret.CLIENT_SECRET = result.CLIENT_SECRET;
-    config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
+    //config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
 
     config.AUTHZ = "CENTRIFY";

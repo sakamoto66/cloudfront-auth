@@ -64,9 +64,11 @@ function mainProcess(event, context, callback) {
   const request = event.Records[0].cf.request;
   const headers = request.headers;
   const queryDict = qs.parse(request.querystring);
-  if (event.Records[0].cf.config.hasOwnProperty('test')) {
-    config.AUTH_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
-    config.TOKEN_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
+  if (event.Records[0].cf.config.hasOwnProperty('distributionDomainName')) {
+    const redirect_uri = `https://${event.Records[0].cf.config.distributionDomainName}${config.CALLBACK_PATH}`;
+    console.log(`redirect_uri:${redirect_uri}`);
+    config.AUTH_REQUEST.redirect_uri = redirect_uri;
+    config.TOKEN_REQUEST.redirect_uri = redirect_uri;
   }
   if (request.uri.startsWith(config.CALLBACK_PATH)) {
     console.log("Callback from OIDC provider received");
